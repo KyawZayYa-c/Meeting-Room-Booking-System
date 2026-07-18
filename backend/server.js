@@ -11,6 +11,7 @@ const { Msg } = require('./src/utils/responseHelper');
 
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const bookingRoutes = require('./src/routes/bookingRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use(morgan('dev'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 app.get('/', (req, res) => {
     Msg(res, 'Meeting Room Booking System API is running', {}, 200);

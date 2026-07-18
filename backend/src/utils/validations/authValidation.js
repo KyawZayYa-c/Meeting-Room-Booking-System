@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-// Register validation schema
+// Register validation schemas
 const registerSchema = Joi.object({
     name: Joi.string().required().min(2).max(50).messages({
         'string.empty': 'Name is required',
@@ -17,7 +17,7 @@ const registerSchema = Joi.object({
     }),
 });
 
-// Login validation schema
+// Login validation schemas
 const loginSchema = Joi.object({
     email: Joi.string().required().email().messages({
         'string.empty': 'Email is required',
@@ -28,7 +28,7 @@ const loginSchema = Joi.object({
     }),
 });
 
-// Update user role validation schema
+// Update user role validation schemas
 const updateRoleSchema = Joi.object({
     role: Joi.string().required().valid('admin', 'owner', 'user').messages({
         'string.empty': 'Role is required',
@@ -36,7 +36,7 @@ const updateRoleSchema = Joi.object({
     }),
 });
 
-// Change password validation schema
+// Change password validation schemas
 const changePasswordSchema = Joi.object({
     currentPassword: Joi.string().required().messages({
         'string.empty': 'Current password is required',
@@ -47,7 +47,7 @@ const changePasswordSchema = Joi.object({
     }),
 });
 
-// Create user by admin validation schema
+// Create user by admin validation schemas
 const createUserSchema = Joi.object({
     name: Joi.string().required().min(2).max(50).messages({
         'string.empty': 'Name is required',

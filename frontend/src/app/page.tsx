@@ -1,66 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+import { useRouter } from 'next/navigation';
+import { Box, Container, Heading, Text, VStack, Button, Stack } from '@chakra-ui/react';
+
+export default function HomePage() {
+    const router = useRouter();
+
+    return (
+        <Container maxW="container.lg" minH="100vh" py={20}>
+            <Box
+                bg="white"
+                p={10}
+                borderRadius="3xl"
+                boxShadow="xl"
+                textAlign="center"
+                border="1px"
+                borderColor="gray.100"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+                <VStack gap={8}>
+                    <Box>
+                        <Heading size="4xl" color="blue.600" letterSpacing="tight">
+                            🏢 Meeting Room
+                        </Heading>
+                        <Heading size="xl" color="gray.600" fontWeight="medium" mt={2}>
+                            Booking System
+                        </Heading>
+                    </Box>
+
+                    <Text fontSize="xl" color="gray.600" maxW="lg">
+                        Welcome to the Meeting Room Booking System. Please login or register to continue.
+                    </Text>
+
+                    <Stack direction={{ base: 'column', sm: 'row' }} gap={4} mt={4}>
+                        <Button
+                            size="lg"
+                            colorScheme="blue"
+                            px={12}
+                            py={7}
+                            borderRadius="xl"
+                            fontSize="lg"
+                            _hover={{ transform: 'translateY(-3px)', shadow: 'lg' }}
+                            transition="all 0.2s"
+                            onClick={() => router.push('/login')}
+                        >
+                            Sign In
+                        </Button>
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            colorScheme="blue"
+                            px={12}
+                            py={7}
+                            borderRadius="xl"
+                            fontSize="lg"
+                            _hover={{ transform: 'translateY(-3px)', shadow: 'lg', bg: 'blue.50' }}
+                            transition="all 0.2s"
+                            onClick={() => router.push('/register')}
+                        >
+                            Create Account
+                        </Button>
+                    </Stack>
+
+                    <Text fontSize="sm" color="gray.400" mt={4}>
+                        🔒 Secure & Easy to use
+                    </Text>
+                </VStack>
+            </Box>
+        </Container>
+    );
 }

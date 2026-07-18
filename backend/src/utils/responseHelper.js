@@ -1,4 +1,4 @@
-// Original Msg function (from your utils.js)
+// Original Msg function (from your lib.js)
 const Msg = (res, msg = '', result = {}, statusCode = 200) => {
     res.status(statusCode).json({
         success: true,

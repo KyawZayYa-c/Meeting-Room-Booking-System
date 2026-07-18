@@ -99,7 +99,7 @@ export default function Navbar() {
 
                     {/* Desktop Navigation */}
                     <HStack
-                        display={{ base: 'none', md: 'flex' }}
+                        display={{ base: 'none', lg: 'flex' }}
                         flexWrap="wrap"
                     >
                         {navItems.map((item) => (
@@ -159,7 +159,7 @@ export default function Navbar() {
                                         <VStack
                                             gap={0}
                                             align="start"
-                                            display={{ base: 'none', md: 'flex' }}
+                                            display={{ base: 'none', lg: 'flex' }}
                                         >
                                             <Text fontSize="xs" fontWeight="semibold" color="gray.700" lineHeight="1.2">
                                                 {user?.name}
@@ -172,13 +172,13 @@ export default function Navbar() {
                                             as={FiChevronDown}
                                             boxSize={4}
                                             color="gray.400"
-                                            display={{ base: 'none', md: 'block' }}
+                                            display={{ base: 'none', lg: 'block' }}
                                         />
                                     </HStack>
                                 </Button>
                             </Menu.Trigger>
                             <Portal  >
-                                <Menu.Positioner display={{ base: 'none', md: 'flex' }} >
+                                <Menu.Positioner display={{ base: 'none', lg: 'flex' }} >
                                     <Menu.Content
                                         width="220px"
 
@@ -228,7 +228,7 @@ export default function Navbar() {
                             aria-label="Open menu"
                             variant="ghost"
                             size="sm"
-                            display={{ base: 'flex', md: 'none' }}
+                            display={{ base: 'flex', lg: 'none' }}
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             borderRadius="full"
                             _hover={{ bg: 'gray.100' }}

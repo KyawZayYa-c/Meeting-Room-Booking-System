@@ -14,14 +14,17 @@ import {
     Button,
     Text,
     Link,
-    Image,
-    Stack,
+    Icon,
+    Card,
+    Separator,
+    HStack,
 } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { setUser, setError, setLoading } from '@/lib/store/slices/authSlice';
 import { useLoginMutation } from '@/lib/features/auth/authApiSlice';
 import { LoginSchema, LoginFormData } from '@/lib/schemas/authSchema';
+import { FiMail, FiLock, FiLogIn, FiUser, FiCalendar } from 'react-icons/fi';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -63,73 +66,139 @@ export default function LoginPage() {
     };
 
     return (
-        <Container maxW="lg" minH="100vh" py={12} display="flex" alignItems="center">
-            <Box bg="white" p={8} borderRadius="2xl" boxShadow="xl" width="full">
-                <VStack gap={8} align="center">
-                    {/* Logo / Project Name */}
-                    <VStack gap={1}>
-                        <Heading size="2xl" color="blue.600" letterSpacing="tight">
-                            🏢 Meeting Room
+        <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" py={8}>
+            <Container maxW="lg" px={{ base: 4, md: 6 }}>
+                <Card.Root
+                    variant="outline"
+                    borderColor="gray.200"
+                    borderRadius="3xl"
+                    shadow="lg"
+                    bg="white"
+                    overflow="hidden"
+                >
+                    {/* Project Logo & Name */}
+                    <Box
+                        bgGradient="to-r"
+                        gradientFrom="blue.500"
+                        gradientTo="purple.600"
+                        p={6}
+                        textAlign="center"
+                        borderBottom="1px"
+                        borderColor="whiteAlpha.200"
+                    >
+                        {/* User Icon */}
+                        <Box
+                            bg="whiteAlpha.200"
+                            borderRadius="full"
+                            p={3}
+                            display="inline-block"
+                            mb={2}
+                            _hover={{ bg: 'whiteAlpha.300' }}
+                            transition="all 0.2s"
+                        >
+                            <Icon as={FiUser} boxSize={8} color="white" />
+                        </Box>
+                        <Heading size="lg" color="white" fontWeight="bold" letterSpacing="tight">
+                            Welcome Back
                         </Heading>
-                        <Text color="gray.500" fontSize="sm" fontWeight="medium">
-                            Welcome back! Please login to continue
+                        <Text color="whiteAlpha.800" fontSize="sm" mt={1}>
+                            Sign in to continue to your{' '}
+                            <Text as="span" fontWeight="bold" color="white">
+                                    MEETING ROOM
+                            </Text>
                         </Text>
-                    </VStack>
+                    </Box>
 
-                    <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
-                        <Stack gap={4}>
-                            <Field.Root required invalid={!!errors.email}>
-                                <Field.Label fontWeight="medium">Email Address</Field.Label>
-                                <Input
-                                    type="email"
-                                    placeholder="you@example.com"
+                    <Card.Body p={{ base: 6, md: 8 }}>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <VStack gap={5} align="stretch">
+                                {/* Email Field */}
+                                <Field.Root required invalid={!!errors.email}>
+                                    <Field.Label display="flex" alignItems="center" gap={2} fontWeight="semibold" color="gray.700">
+                                        <Icon as={FiMail} boxSize={4} color="gray.400" />
+                                        Email Address
+                                    </Field.Label>
+                                    <Input
+                                        type="email"
+                                        placeholder="you@example.com"
+                                        size="lg"
+                                        {...register('email')}
+                                        bg="gray.50"
+                                        borderColor="gray.200"
+                                        _hover={{ borderColor: 'blue.400' }}
+                                        _focus={{
+                                            borderColor: 'blue.500',
+                                            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.2)',
+                                            bg: 'white'
+                                        }}
+                                        transition="all 0.2s"
+                                    />
+                                    {errors.email && (
+                                        <Field.ErrorText fontSize="sm" color="red.500">
+                                            {errors.email.message}
+                                        </Field.ErrorText>
+                                    )}
+                                </Field.Root>
+
+                                {/* Password Field */}
+                                <Field.Root required invalid={!!errors.password}>
+                                    <Field.Label display="flex" alignItems="center" gap={2} fontWeight="semibold" color="gray.700">
+                                        <Icon as={FiLock} boxSize={4} color="gray.400" />
+                                        Password
+                                    </Field.Label>
+                                    <Input
+                                        type="password"
+                                        placeholder="Enter your password"
+                                        size="lg"
+                                        {...register('password')}
+                                        bg="gray.50"
+                                        borderColor="gray.200"
+                                        _hover={{ borderColor: 'blue.400' }}
+                                        _focus={{
+                                            borderColor: 'blue.500',
+                                            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.2)',
+                                            bg: 'white'
+                                        }}
+                                        transition="all 0.2s"
+                                    />
+                                    {errors.password && (
+                                        <Field.ErrorText fontSize="sm" color="red.500">
+                                            {errors.password.message}
+                                        </Field.ErrorText>
+                                    )}
+                                </Field.Root>
+
+                                <Button
+                                    type="submit"
+                                    colorPalette="blue"
                                     size="lg"
-                                    {...register('email')}
-                                    _focus={{ borderColor: 'blue.500', boxShadow: 'outline' }}
-                                />
-                                {errors.email && (
-                                    <Field.ErrorText>{errors.email.message}</Field.ErrorText>
-                                )}
-                            </Field.Root>
+                                    width="full"
+                                    mt={2}
+                                    loading={isLoading}
+                                    loadingText="Signing in..."
+                                    borderRadius="xl"
+                                    shadow="md"
+                                    _hover={{
+                                        transform: 'translateY(-2px)',
+                                        shadow: 'lg',
+                                        bg: 'blue.600'
+                                    }}
+                                    transition="all 0.2s"
+                                >
+                                    <Icon as={FiLogIn} mr={2} />
+                                    Sign In
+                                </Button>
+                            </VStack>
+                        </form>
 
-                            <Field.Root required invalid={!!errors.password}>
-                                <Field.Label fontWeight="medium">Password</Field.Label>
-                                <Input
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    size="lg"
-                                    {...register('password')}
-                                    _focus={{ borderColor: 'blue.500', boxShadow: 'outline' }}
-                                />
-                                {errors.password && (
-                                    <Field.ErrorText>{errors.password.message}</Field.ErrorText>
-                                )}
-                            </Field.Root>
+                    </Card.Body>
+                </Card.Root>
 
-                            <Button
-                                type="submit"
-                                colorScheme="blue"
-                                size="lg"
-                                width="full"
-                                mt={2}
-                                loading={isLoading}
-                                borderRadius="xl"
-                                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
-                                transition="all 0.2s"
-                            >
-                                Sign In
-                            </Button>
-                        </Stack>
-                    </form>
-
-                    <Text fontSize="sm" color="gray.600">
-                        Don't have an account?{' '}
-                        <Link as={NextLink} href="/register" color="blue.600" fontWeight="semibold">
-                            Create Account
-                        </Link>
-                    </Text>
-                </VStack>
-            </Box>
-        </Container>
+                {/* Footer Info */}
+                <Text textAlign="center" fontSize="xs" color="gray.400" mt={4}>
+                    By signing in, you agree to our Terms of Service
+                </Text>
+            </Container>
+        </Box>
     );
 }

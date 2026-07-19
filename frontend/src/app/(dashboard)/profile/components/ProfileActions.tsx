@@ -25,7 +25,7 @@ export default function ProfileActions() {
                 colorPalette="blue"
                 size={{ base: 'md', md: 'lg' }}
                 borderRadius="xl"
-                onClick={() => router.push('/bookings')}
+                onClick={() => router.push('/my-bookings')}
                 shadow="sm"
                 justifyContent="center"
                 fontSize={{ base: 'sm', md: 'md' }}

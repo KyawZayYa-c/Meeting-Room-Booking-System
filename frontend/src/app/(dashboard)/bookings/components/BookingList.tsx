@@ -12,7 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { Booking } from '@/lib/types';
 import { formatDate, formatTime } from '@/utils/helpers';
-import { FiTrash2, FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import { FiTrash2, FiCalendar, FiClock, FiUser, FiEye } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 interface BookingListProps {
     bookings: Booking[];
@@ -29,12 +30,18 @@ export default function BookingList({
                                         onDelete,
                                         isDeleting,
                                     }: BookingListProps) {
+    const router = useRouter();
+
     const canDelete = (booking: Booking) => {
         if (userRole === 'admin' || userRole === 'owner') return true;
         const userId = typeof booking.userId === 'object'
             ? booking.userId?._id || booking.userId?.id
             : booking.userId;
         return userId === currentUserId;
+    };
+
+    const canView = () => {
+        return userRole === 'admin' || userRole === 'owner';
     };
 
     const getUserName = (booking: Booking) => {
@@ -103,7 +110,7 @@ export default function BookingList({
                     },
                 }}
             >
-                <Table.Root variant="outline" bg="white" minWidth="500px">
+                <Table.Root variant="outline" bg="white" minWidth="650px">
                     <Table.Header>
                         <Table.Row bg="gray.50">
                             <Table.ColumnHeader
@@ -157,9 +164,9 @@ export default function BookingList({
                                 fontSize="xs"
                                 textTransform="uppercase"
                                 letterSpacing="wider"
-                                minWidth="80px"
+                                minWidth="120px"
                             >
-                                Action
+                                Actions
                             </Table.ColumnHeader>
                         </Table.Row>
                     </Table.Header>
@@ -170,6 +177,7 @@ export default function BookingList({
                                 ? booking.userId?._id || booking.userId?.id
                                 : booking.userId;
                             const isMine = bookingUserId === currentUserId;
+                            const showView = canView();
 
                             return (
                                 <Table.Row
@@ -240,24 +248,42 @@ export default function BookingList({
                                         </Badge>
                                     </Table.Cell>
                                     <Table.Cell textAlign="center">
-                                        {canDelete(booking) && (
-                                            <Button
-                                                size="xs"
-                                                variant="ghost"
-                                                colorPalette="red"
-                                                onClick={() => onDelete(booking._id)}
-                                                loading={isDeleting}
-                                                _hover={{ bg: 'red.50', transform: 'scale(1.05)' }}
-                                                transition="all 0.2s"
-                                                borderRadius="full"
-                                                px={3}
-                                            >
-                                                <HStack gap={1}>
+                                        <HStack justify="center" gap={1}>
+                                            {/* View Button - Admin and Owner only */}
+                                            {showView && (
+                                                <Button
+                                                    size="xs"
+                                                    colorPalette="blue"
+                                                    variant="ghost"
+                                                    onClick={() => router.push(`/bookings/${booking._id}`)}
+                                                    _hover={{ bg: 'blue.100', transform: 'scale(1.05)' }}
+                                                    transition="all 0.2s"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                >
+                                                    <FiEye size={14} />
+                                                    <Text ml={1}>View</Text>
+                                                </Button>
+                                            )}
+
+                                            {/* Delete Button */}
+                                            {canDelete(booking) && (
+                                                <Button
+                                                    size="xs"
+                                                    variant="ghost"
+                                                    colorPalette="red"
+                                                    onClick={() => onDelete(booking._id)}
+                                                    loading={isDeleting}
+                                                    _hover={{ bg: 'red.50', transform: 'scale(1.05)' }}
+                                                    transition="all 0.2s"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                >
                                                     <FiTrash2 size={14} />
-                                                    <Text>Delete</Text>
-                                                </HStack>
-                                            </Button>
-                                        )}
+                                                    <Text ml={1}>Delete</Text>
+                                                </Button>
+                                            )}
+                                        </HStack>
                                     </Table.Cell>
                                 </Table.Row>
                             );

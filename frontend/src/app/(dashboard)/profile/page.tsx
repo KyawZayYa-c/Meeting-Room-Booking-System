@@ -27,6 +27,7 @@ import { formatDate, getRoleColor } from '@/utils/helpers';
 import { FiArrowLeft, FiMail, FiCalendar, FiUser, FiBookOpen } from 'react-icons/fi';
 import ProfileInfoCard from './components/ProfileInfoCard';
 import ProfileActions from './components/ProfileActions';
+import UserProfileHeader from './components/UserProfileHeader';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -97,21 +98,7 @@ export default function ProfilePage() {
             <Container maxW={{ base: 'container.sm', md: 'container.md' }} px={{ base: 4, md: 6 }}>
                 <VStack align="stretch" gap={4}>
                     {/* Header */}
-                    <HStack>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.back()}
-                            borderRadius="full"
-                            colorPalette="gray"
-                            bg="gray.100"
-                            _hover={{ bg: 'gray.200', transform: 'scale(0.95)' }}
-                            transition="all 0.2s"
-                        >
-                            <Icon as={FiArrowLeft} mr={1} />
-                            Back
-                        </Button>
-                    </HStack>
+                    <UserProfileHeader />
 
                     {isLoading ? (
                         <Card.Root

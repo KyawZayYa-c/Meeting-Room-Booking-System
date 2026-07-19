@@ -67,6 +67,7 @@ async function deleteBooking(bookingId) {
 
 async function getBookingsByUser(userId) {
     const bookings = await Booking.find({ userId })
+        .populate('userId', 'name email role')
         .sort({ date: 1, startTime: 1 });
     return bookings;
 }

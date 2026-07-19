@@ -9,7 +9,7 @@ A full-stack web application for managing bookings for a single meeting room, fe
 The application is deployed and accessible at the following link:
 
 ```
-https://meeting-room-booking-system.vercel.app/
+https://meeting-room-booking-system-test.vercel.app/
 ```
 
 ---
@@ -254,7 +254,7 @@ This project is open-source and available under the **MIT License**. See the [LI
 
 - GitHub: [@KyawZayYa-c](https://github.com/KyawZayYa-c)
 - Project Link: [https://github.com/KyawZayYa-c/Meeting-Room-Booking-System](https://github.com/KyawZayYa-c/Meeting-Room-Booking-System)
-- [x] Demo WebApp Link: [[https://meeting-room-booking-system.vercel.app/](https://meeting-room-booking-system.vercel.app/)]
+- [x] Demo WebApp Link: [[https://meeting-room-booking-system-test.vercel.app/](https://meeting-room-booking-system-test.vercel.app/)]
 ---
 
 <div align="center">

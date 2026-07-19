@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Box, VStack, Text, Button, Card, Icon } from '@chakra-ui/react';
 import { FiAlertCircle, FiRefreshCw, FiArrowLeft } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,18 @@ export default function ErrorDisplay({
                                          statusCode,
                                      }: ErrorDisplayProps) {
     const router = useRouter();
+    const [isRetrying, setIsRetrying] = useState(false);
+
+    const handleRetry = async () => {
+        if (!onRetry) return;
+
+        setIsRetrying(true);
+        try {
+            await onRetry();
+        } finally {
+            setIsRetrying(false);
+        }
+    };
 
     const content = (
         <Card.Root
@@ -65,10 +78,12 @@ export default function ErrorDisplay({
                         {showRetry && onRetry && (
                             <Button
                                 colorPalette="blue"
-                                onClick={onRetry}
+                                onClick={handleRetry}
                                 borderRadius="xl"
                                 width="full"
                                 maxW="200px"
+                                loading={isRetrying}
+                                loadingText="Retrying..."
                                 _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
                                 transition="all 0.2s"
                             >

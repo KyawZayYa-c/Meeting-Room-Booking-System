@@ -164,9 +164,6 @@ export default function Navbar() {
                                             <Text fontSize="xs" fontWeight="semibold" color="gray.700" lineHeight="1.2">
                                                 {user?.name}
                                             </Text>
-                                            <Text fontSize="10px" color="gray.500" lineHeight="1.2">
-                                                {user?.email}
-                                            </Text>
                                         </VStack>
                                         <Icon
                                             as={FiChevronDown}
@@ -264,14 +261,12 @@ export default function Navbar() {
                                             bg="blue.500"
                                             color="white"
                                             fontSize="sm"
+                                            p={1}
                                         />
                                     </Avatar.Root>
                                     <Box>
                                         <Text fontSize="sm" fontWeight="semibold" color="gray.700">
                                             {user?.name}
-                                        </Text>
-                                        <Text fontSize="xs" color="gray.500">
-                                            {user?.email}
                                         </Text>
                                         <Badge
                                             colorPalette={getRoleColor(user?.role || 'user')}

@@ -195,15 +195,7 @@ export default function Navbar() {
                                             <Icon as={FiUser} mr={2} />
                                             Profile
                                         </Menu.Item>
-                                        <Menu.Item
-                                            value="change-password"
-                                            onClick={() => router.push('/change-password')}
-                                            _hover={{ bg: 'gray.50' }}
-                                            borderRadius="md"
-                                        >
-                                            <Icon as={FiSettings} mr={2} />
-                                            Change Password
-                                        </Menu.Item>
+
                                         <Menu.Separator />
                                         <Menu.Item
                                             value="logout"
@@ -318,21 +310,7 @@ export default function Navbar() {
                                 <Icon as={FiUser} mr={2.5} boxSize={5} />
                                 Profile
                             </Button>
-                            <Button
-                                variant="ghost"
-                                colorPalette="gray"
-                                size="md"
-                                borderRadius="lg"
-                                justifyContent="flex-start"
-                                px={4}
-                                onClick={() => {
-                                    router.push('/change-password');
-                                    setIsMobileMenuOpen(false);
-                                }}
-                            >
-                                <Icon as={FiSettings} mr={2.5} boxSize={5} />
-                                Change Password
-                            </Button>
+
                             <Separator />
                             <Button
                                 variant="ghost"

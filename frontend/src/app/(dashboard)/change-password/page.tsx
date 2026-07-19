@@ -73,7 +73,7 @@ export default function ChangePasswordPage() {
     };
 
     return (
-        <Container maxW="md" py={20}>
+        <Container maxW="md" py={8}>
             <Box bg="white" p={8} borderRadius="2xl" boxShadow="xl">
                 <VStack gap={6}>
                     {/* Back Button & Title */}

@@ -36,6 +36,16 @@ export const authApiSlice = baseApi.injectEndpoints({
         getMe: build.query<{ user: User }, void>({
             query: () => '/auth/me',
             providesTags: ['Auth'],
+            transformResponse: (response: any) => {
+                // Backend က { success: true, data: { user: {...} } } ပြန်တယ်
+                if (response?.data?.user) {
+                    return { user: response.data.user };
+                }
+                if (response?.user) {
+                    return { user: response.user };
+                }
+                return { user: null as any };
+            },
         }),
     }),
 });

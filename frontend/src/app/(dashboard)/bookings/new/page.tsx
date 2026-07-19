@@ -20,7 +20,7 @@ export default function NewBookingPage() {
     const router = useRouter();
 
     return (
-        <Box bg="gray.50" minH="100vh" py={4}>
+        <Box bg="gray.50" minH="100vh" py={8}>
             <Container maxW="lg" px={{ base: 4, md: 6 }}>
                 <VStack align="stretch" gap={6}>
                     {/* Form */}

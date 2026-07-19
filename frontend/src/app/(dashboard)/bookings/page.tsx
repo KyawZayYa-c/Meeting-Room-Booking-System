@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Container,
@@ -8,26 +8,74 @@ import {
     Box,
 } from '@chakra-ui/react';
 import { useAppSelector } from '@/lib/store/hooks';
+import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetAllBookingsQuery, useDeleteBookingMutation } from '@/lib/features/booking/bookingApiSlice';
 import { toaster } from '@/components/ui/toaster';
 import BookingList from './components/BookingList';
 import BookingsHeader from './components/BookingsHeader';
 import BookingsStats from './components/BookingsStats';
-import BookingsLoading from './components/BookingsLoading';
+import ErrorDisplay from "@/app/components/ErrorDisplay";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 export default function BookingsPage() {
     const router = useRouter();
-    const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-    const { data, isLoading, refetch } = useGetAllBookingsQuery(undefined, { skip: !isAuthenticated });
+    const { user } = useAppSelector((state) => state.auth);
+
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
+
+    const {
+        data,
+        isLoading,
+        refetch,
+        error: bookingsError
+    } = useGetAllBookingsQuery(undefined);
+
     const [deleteBooking, { isLoading: isDeleting }] = useDeleteBookingMutation();
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
-        }
-    }, [isAuthenticated, router]);
+    const hasError = userError || bookingsError;
 
+    if (isLoadingUser) {
+        return (
+            <LoadingSpinner
+                message="Loading bookings..."
+                subMessage="Fetching your bookings data"
+                fullScreen={true}
+            />
+        );
+    }
+
+    if (!userData?.user) {
+        router.push('/login');
+        return null;
+    }
+
+    if (hasError) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
+                <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
+                    <VStack align="stretch" gap={{ base: 4, md: 6 }}>
+                        <BookingsHeader
+                            bookingsCount={0}
+                            onRefresh={refetch}
+                            isRefreshing={isRefreshing}
+                            isLoading={isLoading}
+                            onBack={() => router.push('/dashboard')}
+                            onNewBooking={() => router.push('/bookings/new')}
+                        />
+                        <ErrorDisplay
+                            title="Failed to load bookings"
+                            message="Unable to fetch your bookings. Please try again."
+                            onRetry={refetch}
+                            showBack={false}
+                        />
+                    </VStack>
+                </Container>
+            </Box>
+        );
+    }
+
+    const currentUser = userData.user;
     const bookings = data?.data?.bookings || [];
 
     const handleDelete = async (id: string) => {
@@ -54,17 +102,10 @@ export default function BookingsPage() {
         }, 500);
     };
 
-    if (!user) return null;
+    const userId = currentUser._id || currentUser.id || '';
 
-    const userId = user._id || user.id || '';
-
-    // Count active bookings (today or future)
     const activeBookings = bookings.filter((b: any) => new Date(b.date) >= new Date()).length;
-
-    // Count past bookings
     const pastBookings = bookings.filter((b: any) => new Date(b.date) < new Date()).length;
-
-    // Count user's own bookings
     const myBookings = bookings.filter((b: any) => {
         const bookingUserId = typeof b.userId === 'object'
             ? b.userId?._id || b.userId?.id
@@ -76,17 +117,15 @@ export default function BookingsPage() {
         <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
             <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
                 <VStack align="stretch" gap={{ base: 4, md: 6 }}>
-                    {/* Header Section */}
                     <BookingsHeader
                         bookingsCount={bookings.length}
                         onRefresh={handleRefresh}
                         isRefreshing={isRefreshing}
                         isLoading={isLoading}
-                        onBack={() => router.push('/dashboard')}
+                        onBack={() => router.back()}
                         onNewBooking={() => router.push('/bookings/new')}
                     />
 
-                    {/* Stats Section */}
                     <BookingsStats
                         totalBookings={bookings.length}
                         activeBookings={activeBookings}
@@ -96,14 +135,16 @@ export default function BookingsPage() {
                         isLoading={isLoading}
                     />
 
-                    {/* Booking List */}
                     {isLoading && !isRefreshing ? (
-                        <BookingsLoading />
+                        <LoadingSpinner
+                            message="Loading bookings..."
+                            subMessage="Please wait while we fetch your bookings"
+                        />
                     ) : (
                         <BookingList
                             bookings={bookings}
                             currentUserId={userId}
-                            userRole={user.role}
+                            userRole={currentUser.role}
                             onDelete={handleDelete}
                             isDeleting={isDeleting}
                         />

@@ -1,22 +1,5 @@
 const Joi = require('joi');
 
-// Register validation schemas
-const registerSchema = Joi.object({
-    name: Joi.string().required().min(2).max(50).messages({
-        'string.empty': 'Name is required',
-        'string.min': 'Name must be at least 2 characters',
-        'string.max': 'Name must be less than 50 characters',
-    }),
-    email: Joi.string().required().email().messages({
-        'string.empty': 'Email is required',
-        'string.email': 'Please enter a valid email address',
-    }),
-    password: Joi.string().required().min(6).messages({
-        'string.empty': 'Password is required',
-        'string.min': 'Password must be at least 6 characters',
-    }),
-});
-
 // Login validation schemas
 const loginSchema = Joi.object({
     email: Joi.string().required().email().messages({
@@ -68,7 +51,6 @@ const createUserSchema = Joi.object({
 });
 
 module.exports = {
-    registerSchema,
     loginSchema,
     updateRoleSchema,
     changePasswordSchema,

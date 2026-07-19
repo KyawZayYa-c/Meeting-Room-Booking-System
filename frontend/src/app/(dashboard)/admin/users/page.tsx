@@ -8,28 +8,81 @@ import {
     Box,
 } from '@chakra-ui/react';
 import { useAppSelector } from '@/lib/store/hooks';
+import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetAllUsersQuery, useDeleteUserMutation } from '@/lib/features/user/userApiSlice';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { toaster } from '@/components/ui/toaster';
 import UserList from './components/UserList';
 import AdminUsersHeader from './components/AdminUsersHeader';
 import AdminUsersStats from './components/AdminUsersStats';
 import AdminUsersLoading from './components/AdminUsersLoading';
+import ErrorDisplay from "@/app/components/ErrorDisplay";
+import { setUser } from '@/lib/store/slices/authSlice';
+import { useAppDispatch } from '@/lib/store/hooks';
 
 export default function AdminUsersPage() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-    const { data, isLoading, refetch } = useGetAllUsersQuery(undefined, { skip: !isAuthenticated });
+
+    useAuth(['admin']);
+
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
+
+    const {
+        data,
+        isLoading,
+        refetch,
+        error: usersError
+    } = useGetAllUsersQuery(undefined, {
+        skip: !isAuthenticated && !userData?.user
+    });
+
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
+        if (userData?.user) {
+            dispatch(setUser(userData.user));
         }
-        if (user?.role !== 'admin') {
-            router.push('/dashboard');
-        }
-    }, [isAuthenticated, user, router]);
+    }, [userData, dispatch]);
+
+    // Check for errors
+    const hasError = userError || usersError;
+
+    if (isLoadingUser || !user) {
+        return <AdminUsersLoading />;
+    }
+
+    if (user.role !== 'admin') {
+        return null;
+    }
+
+    // Error state
+    if (hasError) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
+                <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
+                    <VStack align="stretch" gap={{ base: 4, md: 6 }}>
+                        <AdminUsersHeader
+                            usersCount={0}
+                            onRefresh={refetch}
+                            isRefreshing={isRefreshing}
+                            isLoading={isLoading}
+                            onBack={() => router.back()}
+                            onNewUser={() => router.push('/admin/users/new')}
+                        />
+                        <ErrorDisplay
+                            title="Failed to load users"
+                            message="Unable to fetch users list. Please try again."
+                            onRetry={refetch}
+                            showBack={false}
+                        />
+                    </VStack>
+                </Container>
+            </Box>
+        );
+    }
 
     const users = data?.data?.users || [];
 
@@ -64,9 +117,6 @@ export default function AdminUsersPage() {
         }, 500);
     };
 
-    if (!user || user.role !== 'admin') return null;
-
-    // Count users by role
     const adminCount = users.filter((u: any) => u.role === 'admin').length;
     const ownerCount = users.filter((u: any) => u.role === 'owner').length;
     const userCount = users.filter((u: any) => u.role === 'user').length;
@@ -75,7 +125,6 @@ export default function AdminUsersPage() {
         <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
             <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
                 <VStack align="stretch" gap={{ base: 4, md: 6 }}>
-                    {/* Header Section */}
                     <AdminUsersHeader
                         usersCount={users.length}
                         onRefresh={handleRefresh}
@@ -85,7 +134,6 @@ export default function AdminUsersPage() {
                         onNewUser={() => router.push('/admin/users/new')}
                     />
 
-                    {/* Stats Section */}
                     <AdminUsersStats
                         totalUsers={users.length}
                         adminCount={adminCount}
@@ -95,7 +143,6 @@ export default function AdminUsersPage() {
                         isLoading={isLoading}
                     />
 
-                    {/* User List */}
                     {isLoading && !isRefreshing ? (
                         <AdminUsersLoading />
                     ) : (

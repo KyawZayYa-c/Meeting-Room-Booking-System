@@ -16,13 +16,19 @@ import BookingList from '../bookings/components/BookingList';
 import MyBookingsHeader from './components/MyBookingsHeader';
 import MyBookingsLoading from './components/MyBookingsLoading';
 import MyBookingsEmpty from './components/MyBookingsEmpty';
+import ErrorDisplay from "@/app/components/ErrorDisplay";
 
 export default function MyBookingsPage() {
     const router = useRouter();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
     const userId = user?._id || user?.id || '';
 
-    const { data, isLoading, refetch } = useGetBookingsByUserQuery(userId, {
+    const {
+        data,
+        isLoading,
+        refetch,
+        error
+    } = useGetBookingsByUserQuery(userId, {
         skip: !userId || !isAuthenticated,
     });
 
@@ -53,6 +59,24 @@ export default function MyBookingsPage() {
     };
 
     if (!user) return null;
+
+    if (error) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
+                <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
+                    <VStack align="stretch" gap={6}>
+                        <MyBookingsHeader />
+                        <ErrorDisplay
+                            title="Failed to load bookings"
+                            message="Unable to fetch your bookings. Please try again."
+                            onRetry={refetch}
+                            showBack={true}
+                        />
+                    </VStack>
+                </Container>
+            </Box>
+        );
+    }
 
     return (
         <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>

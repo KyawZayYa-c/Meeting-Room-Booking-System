@@ -60,6 +60,14 @@ export default function BookingList({
             .slice(0, 2);
     };
 
+    // Check if booking is past (date + time)
+    const isPastBooking = (booking: Booking) => {
+        const bookingDate = new Date(booking.date);
+        const [hours, minutes] = booking.startTime.split(':').map(Number);
+        bookingDate.setHours(hours, minutes, 0, 0);
+        return bookingDate < new Date();
+    };
+
     if (bookings.length === 0) {
         return (
             <Card.Root
@@ -90,7 +98,6 @@ export default function BookingList({
             borderRadius="2xl"
             overflow="hidden"
         >
-            {/* Horizontal Scroll Wrapper */}
             <Box
                 overflowX="auto"
                 css={{
@@ -178,12 +185,15 @@ export default function BookingList({
                                 : booking.userId;
                             const isMine = bookingUserId === currentUserId;
                             const showView = canView();
+                            const isPast = isPastBooking(booking);
 
                             return (
                                 <Table.Row
                                     key={booking._id}
-                                    _hover={{ bg: 'gray.50' }}
+                                    _hover={{ bg: isPast ? 'gray.100' : 'gray.50' }}
                                     transition="all 0.2s"
+                                    opacity={isPast ? 0.6 : 1} // ← past booking ဆိုရင် မှိန်သွားမယ်
+                                    bg={isPast ? 'gray.50' : 'white'}
                                 >
                                     <Table.Cell>
                                         <HStack gap={3}>
@@ -198,7 +208,11 @@ export default function BookingList({
                                                 </Avatar.Fallback>
                                             </Avatar.Root>
                                             <Box>
-                                                <Text fontWeight="medium" fontSize="sm">
+                                                <Text
+                                                    fontWeight="medium"
+                                                    fontSize="sm"
+                                                    color={isPast ? 'gray.500' : 'gray.700'}
+                                                >
                                                     {userName}
                                                 </Text>
                                                 {isMine && (
@@ -211,45 +225,66 @@ export default function BookingList({
                                                         borderRadius="full"
                                                         mt={0.5}
                                                         display="inline-block"
+                                                        opacity={isPast ? 0.6 : 1}
                                                     >
                                                         You
+                                                    </Badge>
+                                                )}
+                                                {isPast && (
+                                                    <Badge
+                                                        colorPalette="gray"
+                                                        variant="subtle"
+                                                        fontSize="9px"
+                                                        px={2}
+                                                        py={0.5}
+                                                        borderRadius="full"
+                                                        mt={0.5}
+                                                        ml={1}
+                                                        display="inline-block"
+                                                    >
+                                                        Past
                                                     </Badge>
                                                 )}
                                             </Box>
                                         </HStack>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <Text fontSize="sm" fontWeight="medium">
+                                        <Text
+                                            fontSize="sm"
+                                            fontWeight="medium"
+                                            color={isPast ? 'gray.500' : 'gray.700'}
+                                        >
                                             {formatDate(booking.date)}
                                         </Text>
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Badge
-                                            colorPalette="purple"
-                                            variant="subtle"
+                                            colorPalette={isPast ? 'gray' : 'purple'}
+                                            variant={isPast ? 'subtle' : 'subtle'}
                                             fontSize="xs"
                                             px={3}
                                             py={1}
                                             borderRadius="full"
+                                            opacity={isPast ? 0.6 : 1}
                                         >
                                             {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
                                         </Badge>
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Badge
-                                            colorPalette={isMine ? 'green' : 'blue'}
+                                            colorPalette={isPast ? 'gray' : (isMine ? 'green' : 'blue')}
                                             variant="subtle"
                                             fontSize="xs"
                                             px={3}
                                             py={1}
                                             borderRadius="full"
+                                            opacity={isPast ? 0.6 : 1}
                                         >
-                                            {isMine ? '✓ Mine' : 'Guest'}
+                                            {isPast ? 'Completed' : (isMine ? '✓ Mine' : 'Guest')}
                                         </Badge>
                                     </Table.Cell>
                                     <Table.Cell textAlign="center">
                                         <HStack justify="center" gap={1}>
-                                            {/* View Button - Admin and Owner only */}
                                             {showView && (
                                                 <Button
                                                     size="xs"
@@ -260,13 +295,14 @@ export default function BookingList({
                                                     transition="all 0.2s"
                                                     borderRadius="full"
                                                     px={2}
+                                                    opacity={isPast ? 0.5 : 1}
+                                                    cursor={isPast ? 'default' : 'pointer'}
                                                 >
                                                     <FiEye size={14} />
                                                     <Text ml={1}>View</Text>
                                                 </Button>
                                             )}
 
-                                            {/* Delete Button */}
                                             {canDelete(booking) && (
                                                 <Button
                                                     size="xs"
@@ -278,6 +314,7 @@ export default function BookingList({
                                                     transition="all 0.2s"
                                                     borderRadius="full"
                                                     px={2}
+                                                    opacity={isPast ? 0.5 : 1}
                                                 >
                                                     <FiTrash2 size={14} />
                                                     <Text ml={1}>Delete</Text>

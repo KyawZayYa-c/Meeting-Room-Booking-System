@@ -44,7 +44,7 @@ export default function Navbar() {
     const { user, isAuthenticated } = useAppSelector((state) => state.auth);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    if (!isAuthenticated || pathname === '/login' || pathname === '/register') {
+    if (!isAuthenticated || pathname === '/login' ) {
         return null;
     }
 

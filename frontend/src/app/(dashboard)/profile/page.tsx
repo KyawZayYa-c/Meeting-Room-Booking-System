@@ -12,56 +12,106 @@ import {
     Avatar,
     Card,
     SimpleGrid,
-    Button,
     Separator,
     Spinner,
     Flex,
-    Icon,
     Container,
 } from '@chakra-ui/react';
-import { useAppSelector } from '@/lib/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/lib/store/hooks';
 import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetUserByIdQuery } from '@/lib/features/user/userApiSlice';
 import { useGetBookingsByUserQuery } from '@/lib/features/booking/bookingApiSlice';
 import { formatDate, getRoleColor } from '@/utils/helpers';
-import { FiArrowLeft, FiMail, FiCalendar, FiUser, FiBookOpen } from 'react-icons/fi';
+import { FiMail, FiCalendar, FiUser, FiBookOpen } from 'react-icons/fi';
 import ProfileInfoCard from './components/ProfileInfoCard';
 import ProfileActions from './components/ProfileActions';
 import UserProfileHeader from './components/UserProfileHeader';
+import { useAuth } from "@/lib/hooks/useAuth";
+import { setUser } from '@/lib/store/slices/authSlice';
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import ErrorDisplay from "@/app/components/ErrorDisplay";
 
 export default function ProfilePage() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-    const { data: userData, isLoading: isLoadingUser } = useGetMeQuery(undefined, {
-        skip: !isAuthenticated,
-    });
 
-    const currentUser = userData?.user || user;
-    console.log('currentUser : ', currentUser);
-    const userId = currentUser?._id || currentUser?.id || '';
+    useAuth();
 
-    const { data: userDetails, isLoading: isLoadingDetails } = useGetUserByIdQuery(userId, {
-        skip: !userId,
-    });
-
-    // Get user's bookings count
-    const { data: userBookings, isLoading: isLoadingBookings } = useGetBookingsByUserQuery(userId, {
-        skip: !userId,
-    });
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
+        if (userData?.user) {
+            dispatch(setUser(userData.user));
         }
-    }, [isAuthenticated, router]);
+    }, [userData, dispatch]);
 
-    if (!currentUser) return null;
+    const currentUser = userData?.user || user;
+    const userId = currentUser?._id || currentUser?.id || '';
 
+    const {
+        data: userDetails,
+        isLoading: isLoadingDetails,
+        error: userDetailsError,
+        refetch: refetchUserDetails
+    } = useGetUserByIdQuery(userId, {
+        skip: !isAuthenticated && !userData?.user || !userId,
+    });
+
+    const {
+        data: userBookings,
+        isLoading: isLoadingBookings,
+        error: userBookingsError,
+        refetch: refetchUserBookings
+    } = useGetBookingsByUserQuery(userId, {
+        skip: !isAuthenticated && !userData?.user || !userId,
+    });
+
+    const hasError = userError || userDetailsError || userBookingsError;
     const isLoading = isLoadingUser || isLoadingDetails || isLoadingBookings;
-    const userInfo = userDetails?.data?.user || currentUser;
+
+    if (isLoadingUser || !user) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
+                <Container maxW={{ base: 'container.sm', md: 'container.md' }} px={{ base: 4, md: 6 }}>
+                    <VStack align="stretch" gap={4}>
+                        <UserProfileHeader />
+                        <LoadingSpinner
+                            message="Loading profile..."
+                            subMessage="Fetching your profile information"
+                        />
+                    </VStack>
+                </Container>
+            </Box>
+        );
+    }
+
+    if (hasError) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
+                <Container maxW={{ base: 'container.sm', md: 'container.md' }} px={{ base: 4, md: 6 }}>
+                    <VStack align="stretch" gap={4}>
+                        <UserProfileHeader />
+                        <ErrorDisplay
+                            title="Failed to load profile"
+                            message="Unable to fetch your profile data. Please try again."
+                            onRetry={() => {
+                                refetchUserDetails();
+                                refetchUserBookings();
+                            }}
+                            showBack={true}
+                        />
+                    </VStack>
+                </Container>
+            </Box>
+        );
+    }
+
+    const isLoadingData = isLoadingDetails || isLoadingBookings;
+    const userInfo = userDetails?.data?.user || user;
     const bookingCount = userBookings?.data?.bookings?.length || 0;
 
-    // Profile info data for looping
+    // Profile info data for mapping loop
     const profileInfoData = [
         {
             icon: FiMail,
@@ -100,7 +150,7 @@ export default function ProfilePage() {
                     {/* Header */}
                     <UserProfileHeader />
 
-                    {isLoading ? (
+                    {isLoadingData ? (
                         <Card.Root
                             variant="outline"
                             borderColor="gray.200"

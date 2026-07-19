@@ -24,22 +24,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "http://localhost:3000/api/auth/register",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          },
-          "response": []
-        },
+
         {
           "name": "Login",
           "request": {

@@ -1,7 +1,30 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    compiler: {
+
+        removeConsole: {
+            exclude: ['error'],
+        },
+    },
+
+    reactStrictMode: true,
+
+    // Image optimization settings
+    images: {
+        domains: [],
+        // remotePatterns: [
+        //     {
+        //         protocol: 'https',
+        //         hostname: '**',
+        //     },
+        // ],
+    },
+
+    //  optional configs
+    // experimental: {
+    //     appDir: true,
+    // },
 };
 
 export default nextConfig;

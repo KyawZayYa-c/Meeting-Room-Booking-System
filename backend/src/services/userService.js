@@ -19,7 +19,7 @@ async function createUser(name, email, password, role) {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        throw new Error('Email already registered');
+        throw new Error('Email already user');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

@@ -3,7 +3,7 @@ import { User } from '../../types';
 
 interface AuthState {
     user: User | null;
-    token: string | null;
+    token: string | null;  // Optional - Cookie
     isAuthenticated: boolean;
     isLoading: boolean;
     error: string | null;
@@ -24,15 +24,13 @@ const authSlice = createSlice({
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload;
         },
-        setUser: (state, action: PayloadAction<{ user: User; token: string }>) => {
-            state.user = action.payload.user;
-            state.token = action.payload.token;
+        setUser: (state, action: PayloadAction<User>) => {
+            state.user = action.payload;
             state.isAuthenticated = true;
             state.error = null;
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('token', action.payload.token);
-                localStorage.setItem('user', JSON.stringify(action.payload.user));
-            }
+        },
+        setToken: (state, action: PayloadAction<string>) => {
+            state.token = action.payload;
         },
         setError: (state, action: PayloadAction<string>) => {
             state.error = action.payload;
@@ -43,10 +41,6 @@ const authSlice = createSlice({
             state.token = null;
             state.isAuthenticated = false;
             state.error = null;
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            }
         },
         clearError: (state) => {
             state.error = null;
@@ -54,5 +48,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setLoading, setUser, setError, logout, clearError } = authSlice.actions;
+export const { setLoading, setUser, setToken, setError, logout, clearError } = authSlice.actions;
 export default authSlice.reducer;

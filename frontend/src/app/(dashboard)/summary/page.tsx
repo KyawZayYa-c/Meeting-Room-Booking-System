@@ -9,52 +9,89 @@ import {
     Tabs,
     Card,
     HStack,
-    Text
+    Text,
 } from '@chakra-ui/react';
 import { useAppSelector } from '@/lib/store/hooks';
+import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetGroupedBookingsQuery, useGetUsageSummaryQuery } from '@/lib/features/summary/summaryApiSlice';
 import SummaryHeader from './components/SummaryHeader';
 import GroupedBookingsTab from './components/GroupedBookingsTab';
 import UsageStatisticsTab from './components/UsageStatisticsTab';
+import { setUser } from '@/lib/store/slices/authSlice';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { useAuth } from '@/lib/hooks/useAuth';
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import ErrorDisplay from "@/app/components/ErrorDisplay";
 
 export default function SummaryPage() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
     const [activeTab, setActiveTab] = useState<'grouped' | 'usage'>('grouped');
+
+    useAuth(['admin', 'owner']);
+
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
 
     const {
         data: groupedData,
         isLoading: isLoadingGrouped,
-    } = useGetGroupedBookingsQuery(undefined, { skip: !isAuthenticated });
+        error: groupedError,
+        refetch: refetchGrouped,
+    } = useGetGroupedBookingsQuery(undefined, {
+        skip: !isAuthenticated && !userData?.user
+    });
 
     const {
         data: usageData,
         isLoading: isLoadingUsage,
-    } = useGetUsageSummaryQuery(undefined, { skip: !isAuthenticated });
+        error: usageError,
+        refetch: refetchUsage,
+    } = useGetUsageSummaryQuery(undefined, {
+        skip: !isAuthenticated && !userData?.user
+    });
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
+        if (userData?.user) {
+            dispatch(setUser(userData.user));
         }
-        if (user?.role !== 'admin' && user?.role !== 'owner') {
-            router.push('/dashboard');
-        }
-    }, [isAuthenticated, user, router]);
+    }, [userData, dispatch]);
 
-    if (!user || (user.role !== 'admin' && user.role !== 'owner')) return null;
+    const hasError = groupedError || usageError || userError;
+    const isLoading = isLoadingUser || isLoadingGrouped || isLoadingUsage;
+
+    if (isLoadingUser || !user) {
+        return <LoadingSpinner message="Loading summary..." subMessage="Fetching your data" />;
+    }
+
+
+    if (hasError) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={4}>
+                <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
+                    <ErrorDisplay
+                        title="Failed to load summary"
+                        message="Unable to fetch summary data. Please try again."
+                        onRetry={() => {
+                            refetchGrouped();
+                            refetchUsage();
+                        }}
+                        showBack={true}
+                    />
+                </Container>
+            </Box>
+        );
+    }
 
     const groupedBookings = groupedData?.data?.data || [];
     const usageSummary = usageData?.data?.data || null;
-    const isLoading = isLoadingGrouped || isLoadingUsage;
 
     return (
         <Box bg="gray.50" minH="100vh" py={4}>
             <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
                 <VStack align="stretch" gap={6}>
-                    {/* Header */}
                     <SummaryHeader userRole={user.role} />
 
-                    {/* Tabs - Modern Design */}
                     <Card.Root
                         variant="outline"
                         borderColor="gray.200"
@@ -68,7 +105,6 @@ export default function SummaryPage() {
                                 value={activeTab}
                                 onValueChange={(e) => setActiveTab(e.value as 'grouped' | 'usage')}
                             >
-                                {/* Tab List with Modern Design */}
                                 <Box
                                     px={{ base: 4, sm: 6 }}
                                     pt={{ base: 4, sm: 6 }}
@@ -128,7 +164,6 @@ export default function SummaryPage() {
                                     </Tabs.List>
                                 </Box>
 
-                                {/* Tab Contents */}
                                 <Box px={{ base: 4, sm: 6 }} py={{ base: 4, sm: 6 }}>
                                     <Tabs.Content value="grouped">
                                         <GroupedBookingsTab

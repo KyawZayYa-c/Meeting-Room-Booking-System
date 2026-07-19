@@ -38,12 +38,6 @@ export interface LoginData {
     password: string;
 }
 
-export interface RegisterData {
-    name: string;
-    email: string;
-    password: string;
-}
-
 export interface BookingFormData {
     date: string;
     startTime: string;

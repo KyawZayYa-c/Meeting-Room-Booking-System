@@ -2,37 +2,87 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Container, VStack } from '@chakra-ui/react';
+import { Container, VStack, Box } from '@chakra-ui/react';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { useAppSelector } from '@/lib/store/hooks';
 import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetAllBookingsQuery } from '@/lib/features/booking/bookingApiSlice';
 import { useGetAllUsersQuery } from '@/lib/features/user/userApiSlice';
-import { useLogoutMutation } from '@/lib/features/auth/authApiSlice';
+import { useAuth } from '@/lib/hooks/useAuth';
 import StatsCards from './components/StatsCards';
 import RecentBookings from './components/RecentBookings';
-import QuickActions from './components/QuickActions';
+import { setUser } from "@/lib/store/slices/authSlice";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import ErrorDisplay from "@/app/components/ErrorDisplay";
 
 export default function DashboardPage() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const [logoutApi] = useLogoutMutation();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-    const { data: userData } = useGetMeQuery(undefined, { skip: !isAuthenticated });
-    const { data: bookingsData } = useGetAllBookingsQuery(undefined, { skip: !isAuthenticated });
-    const { data: usersData } = useGetAllUsersQuery(undefined, {
-        skip: !isAuthenticated || user?.role !== 'admin',
+
+    useAuth();
+
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
+
+    const {
+        data: bookingsData,
+        isLoading: isLoadingBookings,
+        error: bookingsError,
+        refetch: refetchBookings
+    } = useGetAllBookingsQuery(undefined, {
+        skip: !isAuthenticated && !userData?.user,
+    });
+
+    const {
+        data: usersData,
+        error: usersError,
+        refetch: refetchUsers
+    } = useGetAllUsersQuery(undefined, {
+        skip: !isAuthenticated && !userData?.user || user?.role !== 'admin',
     });
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
+        if (userData?.user) {
+            dispatch(setUser(userData.user));
         }
-    }, [isAuthenticated, router]);
+    }, [userData, dispatch]);
 
-    if (!user) return null;
+    const hasError = userError || bookingsError || usersError;
+    const isLoading = isLoadingUser || isLoadingBookings;
 
-    const currentUser = userData?.user || user;
+    if (isLoadingUser) {
+        return (
+            <LoadingSpinner
+                message="Loading your dashboard..."
+                subMessage="Fetching your data and bookings"
+            />
+        );
+    }
+
+    // Error state
+    if (hasError) {
+        return (
+            <Box bg="gray.50" minH="100vh" py={8}>
+                <Container maxW="container.xl">
+                    <ErrorDisplay
+                        title="Failed to load dashboard"
+                        message="Unable to fetch your dashboard data. Please try again."
+                        onRetry={() => {
+                            refetchBookings();
+                            if (user?.role === 'admin') {
+                                refetchUsers();
+                            }
+                        }}
+                        showBack={false}
+                    />
+                </Container>
+            </Box>
+        );
+    }
+
+    if (!userData?.user) return null;
+
+    const currentUser = userData.user;
     const bookings = bookingsData?.data?.bookings || [];
     const users = usersData?.data?.users || [];
 
@@ -49,10 +99,9 @@ export default function DashboardPage() {
         totalBookings,
         myBookings,
         users,
-        userRole: user.role,
+        userRole: currentUser.role,
     };
 
-    // Get user ID safely
     const currentUserId = currentUser._id || currentUser.id || '';
 
     return (
@@ -64,7 +113,6 @@ export default function DashboardPage() {
                     currentUserId={currentUserId}
                     onViewAll={() => router.push('/bookings')}
                 />
-                <QuickActions userRole={user.role} />
             </VStack>
         </Container>
     );

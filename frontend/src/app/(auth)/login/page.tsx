@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NextLink from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -16,20 +17,20 @@ import {
     Link,
     Icon,
     Card,
-    Separator,
     HStack,
 } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
-import { useAppDispatch } from '@/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks'; // ← ဒီလိုပြင်ပါ
 import { setUser, setError, setLoading } from '@/lib/store/slices/authSlice';
 import { useLoginMutation } from '@/lib/features/auth/authApiSlice';
 import { LoginSchema, LoginFormData } from '@/lib/schemas/authSchema';
-import { FiMail, FiLock, FiLogIn, FiUser, FiCalendar } from 'react-icons/fi';
+import { FiMail, FiLock, FiLogIn, FiUser } from 'react-icons/fi';
 
 export default function LoginPage() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const [login, { isLoading }] = useLoginMutation();
+    const { isAuthenticated, user } = useAppSelector((state) => state.auth); // ← ဒီလိုပြင်ပါ
 
     const {
         register,
@@ -43,11 +44,17 @@ export default function LoginPage() {
         },
     });
 
+    useEffect(() => {
+        if (isAuthenticated && user) {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, user, router]);
+
     const onSubmit = async (data: LoginFormData) => {
         dispatch(setLoading(true));
         try {
             const res = await login(data).unwrap();
-            dispatch(setUser({ user: res.data.user, token: res.data.token }));
+            dispatch(setUser(res.data.user));
             toaster.create({
                 title: 'Welcome back! 🎉',
                 type: 'success',
@@ -75,8 +82,26 @@ export default function LoginPage() {
                     shadow="lg"
                     bg="white"
                     overflow="hidden"
+                    position="relative"
                 >
-                    {/* Project Logo & Name */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push('/')}
+                        borderRadius="full"
+                        colorPalette="gray"
+                        bg="gray.100"
+                        _hover={{ bg: 'gray.200', transform: 'scale(0.95)' }}
+                        transition="all 0.2s"
+                        position="absolute"
+                        top={4}
+                        left={4}
+                        px={2}
+                        zIndex={10}
+                    >
+                        ← Back
+                    </Button>
+
                     <Box
                         bgGradient="to-r"
                         gradientFrom="blue.500"
@@ -86,7 +111,6 @@ export default function LoginPage() {
                         borderBottom="1px"
                         borderColor="whiteAlpha.200"
                     >
-                        {/* User Icon */}
                         <Box
                             bg="whiteAlpha.200"
                             borderRadius="full"
@@ -104,7 +128,7 @@ export default function LoginPage() {
                         <Text color="whiteAlpha.800" fontSize="sm" mt={1}>
                             Sign in to continue to your{' '}
                             <Text as="span" fontWeight="bold" color="white">
-                                    MEETING ROOM
+                                MEETING ROOM
                             </Text>
                         </Text>
                     </Box>
@@ -112,7 +136,6 @@ export default function LoginPage() {
                     <Card.Body p={{ base: 6, md: 8 }}>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <VStack gap={5} align="stretch">
-                                {/* Email Field */}
                                 <Field.Root required invalid={!!errors.email}>
                                     <Field.Label display="flex" alignItems="center" gap={2} fontWeight="semibold" color="gray.700">
                                         <Icon as={FiMail} boxSize={4} color="gray.400" />
@@ -140,7 +163,6 @@ export default function LoginPage() {
                                     )}
                                 </Field.Root>
 
-                                {/* Password Field */}
                                 <Field.Root required invalid={!!errors.password}>
                                     <Field.Label display="flex" alignItems="center" gap={2} fontWeight="semibold" color="gray.700">
                                         <Icon as={FiLock} boxSize={4} color="gray.400" />
@@ -194,7 +216,6 @@ export default function LoginPage() {
                     </Card.Body>
                 </Card.Root>
 
-                {/* Footer Info */}
                 <Text textAlign="center" fontSize="xs" color="gray.400" mt={4}>
                     By signing in, you agree to our Terms of Service
                 </Text>

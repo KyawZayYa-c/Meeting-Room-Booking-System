@@ -42,7 +42,7 @@ export const userApiSlice = baseApi.injectEndpoints({
                 url: `/users/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Users'],
+            invalidatesTags: ['Users', 'Bookings'],
         }),
     }),
 });

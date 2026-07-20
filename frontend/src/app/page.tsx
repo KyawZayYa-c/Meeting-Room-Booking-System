@@ -8,8 +8,7 @@ import DashboardPage from "./(dashboard)/dashboard/page";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 export default function HomePage() {
-    const router = useRouter();
-    const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+    const {  user } = useAppSelector((state) => state.auth);
     const { data: userData, isLoading } = useGetMeQuery(undefined);
 
     if (isLoading) {

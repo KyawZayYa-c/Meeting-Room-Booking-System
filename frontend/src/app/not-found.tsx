@@ -39,7 +39,6 @@ export default function NotFound() {
 
                     <Card.Body p={{ base: 6, md: 10 }}>
                         <VStack gap={6}>
-                            {/* 404 Icon */}
                             <Box
                                 bgGradient="to-r"
                                 gradientFrom="blue.500"
@@ -59,7 +58,6 @@ export default function NotFound() {
                                 </Text>
                             </Box>
 
-                            {/* Message */}
                             <VStack gap={2}>
                                 <Heading
                                     size={{ base: 'lg', md: 'xl' }}
@@ -78,7 +76,6 @@ export default function NotFound() {
                                 </Text>
                             </VStack>
 
-                            {/* Divider */}
                             <Box
                                 w="60px"
                                 h="2px"
@@ -88,7 +85,6 @@ export default function NotFound() {
                                 borderRadius="full"
                             />
 
-                            {/* Action Buttons */}
                             <HStack
                                 gap={4}
                                 pt={2}
@@ -109,7 +105,7 @@ export default function NotFound() {
                                         bg: 'blue.600'
                                     }}
                                     transition="all 0.2s"
-                                    onClick={() => router.push('/dashboard')}
+                                    onClick={() => router.push('/')}
                                 >
                                     <Icon as={FiHome} mr={2} boxSize={{ base: 4, md: 5 }} />
                                     Go Home

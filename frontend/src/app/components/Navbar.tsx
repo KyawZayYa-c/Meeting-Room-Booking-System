@@ -30,7 +30,6 @@ import {
     FiBarChart2,
     FiLogOut,
     FiUser,
-    FiSettings,
     FiChevronDown,
     FiMenu
 } from 'react-icons/fi';
@@ -44,7 +43,7 @@ export default function Navbar() {
     const { user, isAuthenticated } = useAppSelector((state) => state.auth);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    if (!isAuthenticated || pathname === '/login' ) {
+    if (!isAuthenticated || pathname === '/login') {
         return null;
     }
 
@@ -63,6 +62,13 @@ export default function Navbar() {
                 type: 'error',
             });
         }
+    };
+
+    const isActive = (href: string) => {
+        if (href === '/dashboard') {
+            return pathname === '/dashboard' || pathname === '/';
+        }
+        return pathname === href;
     };
 
     const navItems = [
@@ -105,8 +111,8 @@ export default function Navbar() {
                         {navItems.map((item) => (
                             <Button
                                 key={item.href}
-                                variant={pathname === item.href ? 'solid' : 'ghost'}
-                                colorPalette={pathname === item.href ? 'blue' : 'gray'}
+                                variant={isActive(item.href) ? 'solid' : 'ghost'}
+                                colorPalette={isActive(item.href) ? 'blue' : 'gray'}
                                 size="sm"
                                 borderRadius="full"
                                 px={2}
@@ -174,11 +180,10 @@ export default function Navbar() {
                                     </HStack>
                                 </Button>
                             </Menu.Trigger>
-                            <Portal  >
-                                <Menu.Positioner display={{ base: 'none', lg: 'flex' }} >
+                            <Portal>
+                                <Menu.Positioner display={{ base: 'none', lg: 'flex' }}>
                                     <Menu.Content
                                         width="220px"
-
                                         shadow="lg"
                                         borderRadius="xl"
                                         border="1px"
@@ -277,8 +282,8 @@ export default function Navbar() {
                             {navItems.map((item) => (
                                 <Button
                                     key={item.href}
-                                    variant={pathname === item.href ? 'solid' : 'ghost'}
-                                    colorPalette={pathname === item.href ? 'blue' : 'gray'}
+                                    variant={isActive(item.href) ? 'solid' : 'ghost'}
+                                    colorPalette={isActive(item.href) ? 'blue' : 'gray'}
                                     size="md"
                                     borderRadius="lg"
                                     justifyContent="flex-start"

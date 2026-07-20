@@ -30,10 +30,9 @@ import LoadingSpinner from "@/app/components/LoadingSpinner";
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 
 export default function ProfilePage() {
+    useAuth();
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-
-    useAuth();
 
     const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
 

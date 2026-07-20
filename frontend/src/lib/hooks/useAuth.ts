@@ -7,27 +7,22 @@ export function useAuth(requiredRoles?: ('admin' | 'owner' | 'user')[]) {
     const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
-        // user === null && isAuthenticated === false → loading
-        if (user === null && isAuthenticated === false) {
-            return;
-        }
-
-        if (isAuthenticated && user) {
-            const path = window.location.pathname;
-            if (path === '/login' ) {
-                router.push('/dashboard');
-                return;
-            }
-        }
-
         if (!isAuthenticated && !user) {
             router.push('/login');
             return;
         }
 
+        if (isAuthenticated && user) {
+            const path = window.location.pathname;
+            if (path === '/login' || path === '/register') {
+                router.push('/');
+                return;
+            }
+        }
+
         if (requiredRoles && requiredRoles.length > 0 && user?.role) {
             if (!requiredRoles.includes(user.role)) {
-                router.push('/dashboard');
+                router.push('/');
                 return;
             }
         }

@@ -1,5 +1,3 @@
-// components/LoadingSpinner.tsx
-
 'use client';
 
 import { Box, VStack, Text, Spinner, Card } from '@chakra-ui/react';

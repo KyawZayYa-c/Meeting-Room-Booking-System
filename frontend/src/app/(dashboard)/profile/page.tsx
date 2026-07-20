@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
     Box,
     Heading,
@@ -19,7 +18,6 @@ import {
 } from '@chakra-ui/react';
 import { useAppSelector, useAppDispatch } from '@/lib/store/hooks';
 import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
-import { useGetUserByIdQuery } from '@/lib/features/user/userApiSlice';
 import { useGetBookingsByUserQuery } from '@/lib/features/booking/bookingApiSlice';
 import { formatDate, getRoleColor } from '@/utils/helpers';
 import { FiMail, FiCalendar, FiUser, FiBookOpen } from 'react-icons/fi';
@@ -32,7 +30,6 @@ import LoadingSpinner from "@/app/components/LoadingSpinner";
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 
 export default function ProfilePage() {
-    const router = useRouter();
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
@@ -50,15 +47,6 @@ export default function ProfilePage() {
     const userId = currentUser?._id || currentUser?.id || '';
 
     const {
-        data: userDetails,
-        isLoading: isLoadingDetails,
-        error: userDetailsError,
-        refetch: refetchUserDetails
-    } = useGetUserByIdQuery(userId, {
-        skip: !isAuthenticated && !userData?.user || !userId,
-    });
-
-    const {
         data: userBookings,
         isLoading: isLoadingBookings,
         error: userBookingsError,
@@ -67,10 +55,10 @@ export default function ProfilePage() {
         skip: !isAuthenticated && !userData?.user || !userId,
     });
 
-    const hasError = userError || userDetailsError || userBookingsError;
-    const isLoading = isLoadingUser || isLoadingDetails || isLoadingBookings;
+    const hasError = userError || userBookingsError;
+    const isLoading = isLoadingUser || isLoadingBookings;
 
-    if (isLoadingUser || !user) {
+    if (isLoading || !user) {
         return (
             <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
                 <Container maxW={{ base: 'container.sm', md: 'container.md' }} px={{ base: 4, md: 6 }}>
@@ -96,7 +84,6 @@ export default function ProfilePage() {
                             title="Failed to load profile"
                             message="Unable to fetch your profile data. Please try again."
                             onRetry={() => {
-                                refetchUserDetails();
                                 refetchUserBookings();
                             }}
                             showBack={true}
@@ -107,11 +94,10 @@ export default function ProfilePage() {
         );
     }
 
-    const isLoadingData = isLoadingDetails || isLoadingBookings;
-    const userInfo = userDetails?.data?.user || user;
+    const isLoadingData = isLoadingBookings;
+    const userInfo = userData?.user || user;
     const bookingCount = userBookings?.data?.bookings?.length || 0;
 
-    // Profile info data for mapping loop
     const profileInfoData = [
         {
             icon: FiMail,
@@ -147,7 +133,6 @@ export default function ProfilePage() {
         <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
             <Container maxW={{ base: 'container.sm', md: 'container.md' }} px={{ base: 4, md: 6 }}>
                 <VStack align="stretch" gap={4}>
-                    {/* Header */}
                     <UserProfileHeader />
 
                     {isLoadingData ? (
@@ -178,7 +163,6 @@ export default function ProfilePage() {
                             mx="auto"
                             w="full"
                         >
-                            {/* Cover Image */}
                             <Box
                                 bgGradient="to-r"
                                 gradientFrom="blue.500"
@@ -186,7 +170,6 @@ export default function ProfilePage() {
                                 h={{ base: '60px', md: '80px' }}
                             />
 
-                            {/* Profile Content */}
                             <Card.Body pt={0} pb={{ base: 4, md: 6 }} px={{ base: 4, md: 6 }}>
                                 <Flex
                                     direction="column"
@@ -194,7 +177,6 @@ export default function ProfilePage() {
                                     gap={{ base: 2, md: 3 }}
                                     mt={{ base: '-30px', md: '-40px' }}
                                 >
-                                    {/* Avatar */}
                                     <Avatar.Root
                                         size={{ base: 'xl', md: '2xl' }}
                                         ring="4px"
@@ -209,7 +191,6 @@ export default function ProfilePage() {
                                         />
                                     </Avatar.Root>
 
-                                    {/* User Info */}
                                     <Box textAlign="center">
                                         <Heading size={{ base: 'md', md: 'lg' }} color="gray.800">
                                             {userInfo.name}
@@ -242,7 +223,6 @@ export default function ProfilePage() {
 
                                 <Separator my={{ base: 4, md: 6 }} />
 
-                                {/* Details Grid - Using Loop */}
                                 <SimpleGrid columns={{ base: 1, sm: 2 }} gap={{ base: 3, md: 4 }}>
                                     {profileInfoData.map((item, index) => (
                                         <ProfileInfoCard
@@ -258,7 +238,6 @@ export default function ProfilePage() {
 
                                 <Separator my={{ base: 4, md: 6 }} />
 
-                                {/* Actions */}
                                 <ProfileActions />
                             </Card.Body>
                         </Card.Root>

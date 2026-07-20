@@ -17,12 +17,12 @@ import MyBookingsHeader from './components/MyBookingsHeader';
 import MyBookingsLoading from './components/MyBookingsLoading';
 import MyBookingsEmpty from './components/MyBookingsEmpty';
 import ErrorDisplay from "@/app/components/ErrorDisplay";
-
+import {useAuth} from "@/lib/hooks/useAuth";
 export default function MyBookingsPage() {
     const router = useRouter();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
     const userId = user?._id || user?.id || '';
-
+    useAuth();
     const {
         data,
         isLoading,

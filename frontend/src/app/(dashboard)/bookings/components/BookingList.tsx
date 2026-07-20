@@ -62,7 +62,6 @@ export default function BookingList({
             .slice(0, 2);
     };
 
-    // Check if booking is past (date + time)
     const isPastBooking = (booking: Booking) => {
         const bookingDate = new Date(booking.date);
         const [hours, minutes] = booking.startTime.split(':').map(Number);
@@ -188,6 +187,7 @@ export default function BookingList({
                             const isMine = bookingUserId === currentUserId;
                             const showView = canView();
                             const isPast = isPastBooking(booking);
+                            const isLoading = isDeleting && deletingId === booking._id;
 
                             return (
                                 <Table.Row
@@ -311,7 +311,7 @@ export default function BookingList({
                                                     variant="ghost"
                                                     colorPalette="red"
                                                     onClick={() => onDelete(booking._id)}
-                                                    loading={isDeleting}
+                                                    loading={isLoading}
                                                     _hover={{ bg: 'red.50', transform: 'scale(1.05)' }}
                                                     transition="all 0.2s"
                                                     borderRadius="full"

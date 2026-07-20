@@ -16,19 +16,26 @@ import BookingsHeader from './components/BookingsHeader';
 import BookingsStats from './components/BookingsStats';
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
-import {useAuth} from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/useAuth";
+
 export default function BookingsPage() {
     const router = useRouter();
-    const { user } = useAppSelector((state) => state.auth);
+    const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
     useAuth();
+
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined, {
+        skip: !isAuthenticated,
+    });
+
     const {
         data,
         isLoading,
         refetch,
         error: bookingsError
-    } = useGetAllBookingsQuery(undefined);
+    } = useGetAllBookingsQuery(undefined, {
+        skip: !isAuthenticated,
+    });
 
     const [deleteBooking, { isLoading: isDeleting }] = useDeleteBookingMutation();
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -69,9 +76,9 @@ export default function BookingsPage() {
             </Box>
         );
     }
-    if(!userData){
-        return  null;
-    }
+
+    if (!userData?.user) return null;
+
     const currentUser = userData.user;
     const bookings = data?.data?.bookings || [];
 

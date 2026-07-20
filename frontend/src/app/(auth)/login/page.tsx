@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams  } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -27,10 +27,11 @@ import { FiMail, FiLock, FiLogIn, FiUser } from 'react-icons/fi';
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const dispatch = useAppDispatch();
     const [login, { isLoading }] = useLoginMutation();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-
+    const redirectTo = searchParams.get('redirectTo') || '/dashboard';
     const {
         register,
         handleSubmit,
@@ -45,7 +46,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         if (isAuthenticated && user) {
-            router.push('/');
+            router.push(redirectTo);
         }
     }, [isAuthenticated, user, router]);
 

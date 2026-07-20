@@ -8,19 +8,17 @@ import { useAppSelector } from '@/lib/store/hooks';
 import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetAllBookingsQuery } from '@/lib/features/booking/bookingApiSlice';
 import { useGetAllUsersQuery } from '@/lib/features/user/userApiSlice';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { withAuth } from '@/lib/hooks/withAuth';
 import StatsCards from './components/StatsCards';
 import RecentBookings from './components/RecentBookings';
 import { setUser } from "@/lib/store/slices/authSlice";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 
-export default function DashboardPage() {
+function DashboardPage() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-
-    useAuth();
 
     const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
 
@@ -52,14 +50,10 @@ export default function DashboardPage() {
 
     if (isLoading) {
         return (
-            <LoadingSpinner
-                message="Loading your dashboard..."
-                subMessage="Fetching your data and bookings"
-            />
+            <LoadingSpinner/>
         );
     }
 
-    // Error state
     if (hasError) {
         return (
             <Box bg="gray.50" minH="100vh" py={8}>
@@ -101,7 +95,6 @@ export default function DashboardPage() {
         })
         .slice(0, 5);
 
-
     const statsData = {
         totalBookings,
         myBookings,
@@ -124,3 +117,6 @@ export default function DashboardPage() {
         </Container>
     );
 }
+
+
+export default withAuth(DashboardPage);

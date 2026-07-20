@@ -5,16 +5,21 @@ import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from './components/Navbar';
-import { Box, Spinner, Center } from '@chakra-ui/react';
+import { Box} from '@chakra-ui/react';
 import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
-import { useAppDispatch } from '@/lib/store/hooks';
+import {useAppDispatch, useAppSelector} from '@/lib/store/hooks';
 import { setUser } from '@/lib/store/slices/authSlice';
 import {useEffect} from 'react';
 import LoadingSpinner from "@/app/components/LoadingSpinner";
+import {usePathname, useRouter} from "next/navigation";
 
 function AppContent({ children }: { children: React.ReactNode }) {
     const dispatch = useAppDispatch();
+    const router = useRouter();
+    const pathname = usePathname();
+
     const { data: userData, isLoading } = useGetMeQuery(undefined);
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
         if (userData?.user) {
@@ -22,9 +27,20 @@ function AppContent({ children }: { children: React.ReactNode }) {
         }
     }, [userData, dispatch]);
 
+    useEffect(() => {
+                if (!isLoading && !userData?.user && pathname !== '/login' && pathname !== '/') {
+            router.push(`/login?redirectTo=${encodeURIComponent(pathname)}`);
+        }
+    }, [isLoading, userData, pathname, router]);
+
     if (isLoading) {
-        return <LoadingSpinner />
+        return <LoadingSpinner />;
     }
+
+    if (!isAuthenticated && !userData?.user && pathname !== '/login' && pathname !== '/') {
+        return <LoadingSpinner />;
+    }
+
 
     return (
         <>

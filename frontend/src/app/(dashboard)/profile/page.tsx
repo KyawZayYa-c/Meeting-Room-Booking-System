@@ -24,17 +24,18 @@ import { FiMail, FiCalendar, FiUser, FiBookOpen } from 'react-icons/fi';
 import ProfileInfoCard from './components/ProfileInfoCard';
 import ProfileActions from './components/ProfileActions';
 import UserProfileHeader from './components/UserProfileHeader';
-import { useAuth } from "@/lib/hooks/useAuth";
 import { setUser } from '@/lib/store/slices/authSlice';
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import ErrorDisplay from "@/app/components/ErrorDisplay";
+import { withAuth } from "@/lib/hooks/withAuth";
 
-export default function ProfilePage() {
-    useAuth();
+function ProfilePage() {
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined, {
+        skip: !isAuthenticated,
+    });
 
     useEffect(() => {
         if (userData?.user) {
@@ -51,7 +52,7 @@ export default function ProfilePage() {
         error: userBookingsError,
         refetch: refetchUserBookings
     } = useGetBookingsByUserQuery(userId, {
-        skip: !isAuthenticated && !userData?.user || !userId,
+        skip: !isAuthenticated || !userId,
     });
 
     const hasError = userError || userBookingsError;
@@ -63,10 +64,7 @@ export default function ProfilePage() {
                 <Container maxW={{ base: 'container.sm', md: 'container.md' }} px={{ base: 4, md: 6 }}>
                     <VStack align="stretch" gap={4}>
                         <UserProfileHeader />
-                        <LoadingSpinner
-                            message="Loading profile..."
-                            subMessage="Fetching your profile information"
-                        />
+                        <LoadingSpinner />
                     </VStack>
                 </Container>
             </Box>
@@ -246,3 +244,5 @@ export default function ProfilePage() {
         </Box>
     );
 }
+
+export default withAuth(ProfilePage);

@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Container,
     VStack,
     Box,
 } from '@chakra-ui/react';
+import {useEffect} from 'react';
 import { useAppSelector } from '@/lib/store/hooks';
 import { useGetMeQuery } from '@/lib/features/auth/authApiSlice';
 import { useGetAllUsersQuery, useDeleteUserMutation } from '@/lib/features/user/userApiSlice';
-import { useAuth } from '@/lib/hooks/useAuth';
 import { toaster } from '@/components/ui/toaster';
 import UserList from './components/UserList';
 import AdminUsersHeader from './components/AdminUsersHeader';
@@ -19,15 +19,16 @@ import AdminUsersLoading from './components/AdminUsersLoading';
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 import { setUser } from '@/lib/store/slices/authSlice';
 import { useAppDispatch } from '@/lib/store/hooks';
+import { withAuth } from '@/lib/hooks/withAuth';
 
-export default function AdminUsersPage() {
+function AdminUsersPage() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-    useAuth(['admin']);
-
-    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined, {
+        skip: !isAuthenticated,
+    });
 
     const {
         data,
@@ -35,7 +36,7 @@ export default function AdminUsersPage() {
         refetch,
         error: usersError
     } = useGetAllUsersQuery(undefined, {
-        skip: !isAuthenticated && !userData?.user
+        skip: !isAuthenticated,
     });
 
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
@@ -47,7 +48,6 @@ export default function AdminUsersPage() {
         }
     }, [userData, dispatch]);
 
-    // Check for errors
     const hasError = userError || usersError;
 
     if (isLoadingUser || !user) {
@@ -58,7 +58,6 @@ export default function AdminUsersPage() {
         return null;
     }
 
-    // Error state
     if (hasError) {
         return (
             <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
@@ -159,3 +158,5 @@ export default function AdminUsersPage() {
         </Box>
     );
 }
+
+export default withAuth(AdminUsersPage, ['admin']);

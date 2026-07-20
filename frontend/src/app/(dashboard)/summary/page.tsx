@@ -19,19 +19,19 @@ import GroupedBookingsTab from './components/GroupedBookingsTab';
 import UsageStatisticsTab from './components/UsageStatisticsTab';
 import { setUser } from '@/lib/store/slices/authSlice';
 import { useAppDispatch } from '@/lib/store/hooks';
-import { useAuth } from '@/lib/hooks/useAuth';
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import ErrorDisplay from "@/app/components/ErrorDisplay";
+import { withAuth } from "@/lib/hooks/withAuth";
 
-export default function SummaryPage() {
+function SummaryPage() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
     const [activeTab, setActiveTab] = useState<'grouped' | 'usage'>('grouped');
 
-    useAuth(['admin', 'owner']);
-
-    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
+    const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined, {
+        skip: !isAuthenticated,
+    });
 
     const {
         data: groupedData,
@@ -39,7 +39,7 @@ export default function SummaryPage() {
         error: groupedError,
         refetch: refetchGrouped,
     } = useGetGroupedBookingsQuery(undefined, {
-        skip: !isAuthenticated && !userData?.user
+        skip: !isAuthenticated,
     });
 
     const {
@@ -48,7 +48,7 @@ export default function SummaryPage() {
         error: usageError,
         refetch: refetchUsage,
     } = useGetUsageSummaryQuery(undefined, {
-        skip: !isAuthenticated && !userData?.user
+        skip: !isAuthenticated,
     });
 
     useEffect(() => {
@@ -60,10 +60,9 @@ export default function SummaryPage() {
     const hasError = groupedError || usageError || userError;
     const isLoading = isLoadingUser || isLoadingGrouped || isLoadingUsage;
 
-    if (isLoadingUser || !user) {
-        return <LoadingSpinner message="Loading summary..." subMessage="Fetching your data" />;
+    if (isLoading || !user) {
+        return <LoadingSpinner  />;
     }
-
 
     if (hasError) {
         return (
@@ -187,3 +186,5 @@ export default function SummaryPage() {
         </Box>
     );
 }
+
+export default withAuth(SummaryPage, ['admin', 'owner']);

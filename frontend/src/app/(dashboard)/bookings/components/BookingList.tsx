@@ -21,6 +21,7 @@ interface BookingListProps {
     userRole: string;
     onDelete: (id: string) => void;
     isDeleting: boolean;
+    deletingId?: string | null;
 }
 
 export default function BookingList({
@@ -29,6 +30,7 @@ export default function BookingList({
                                         userRole,
                                         onDelete,
                                         isDeleting,
+                                        deletingId = null,
                                     }: BookingListProps) {
     const router = useRouter();
 

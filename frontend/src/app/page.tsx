@@ -13,11 +13,7 @@ export default function HomePage() {
 
     if (isLoading) {
         return (
-            <LoadingSpinner
-                message="Loading..."
-                subMessage="Please wait a moment"
-                fullScreen={true}
-            />
+            <LoadingSpinner />
         );
     }
 

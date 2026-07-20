@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
     Container,
     VStack,
@@ -14,15 +12,15 @@ import { useDeleteBookingMutation } from '@/lib/features/booking/bookingApiSlice
 import { toaster } from '@/components/ui/toaster';
 import BookingList from '../bookings/components/BookingList';
 import MyBookingsHeader from './components/MyBookingsHeader';
-import MyBookingsLoading from './components/MyBookingsLoading';
 import MyBookingsEmpty from './components/MyBookingsEmpty';
 import ErrorDisplay from "@/app/components/ErrorDisplay";
-import {useAuth} from "@/lib/hooks/useAuth";
-export default function MyBookingsPage() {
-    const router = useRouter();
+import { withAuth } from "@/lib/hooks/withAuth";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+
+function MyBookingsPage() {
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
     const userId = user?._id || user?.id || '';
-    useAuth();
+
     const {
         data,
         isLoading,
@@ -33,12 +31,6 @@ export default function MyBookingsPage() {
     });
 
     const [deleteBooking, { isLoading: isDeleting }] = useDeleteBookingMutation();
-
-    useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
-        }
-    }, [isAuthenticated, router]);
 
     const bookings = data?.data?.bookings ?? [];
 
@@ -82,12 +74,10 @@ export default function MyBookingsPage() {
         <Box bg="gray.50" minH="100vh" py={{ base: 4, md: 8 }}>
             <Container maxW="container.xl" px={{ base: 3, md: 6 }}>
                 <VStack align="stretch" gap={6}>
-                    {/* Header */}
                     <MyBookingsHeader />
 
-                    {/* Booking List */}
                     {isLoading ? (
-                        <MyBookingsLoading />
+                        <LoadingSpinner />
                     ) : bookings.length === 0 ? (
                         <MyBookingsEmpty />
                     ) : (
@@ -115,3 +105,5 @@ export default function MyBookingsPage() {
         </Box>
     );
 }
+
+export default withAuth(MyBookingsPage);

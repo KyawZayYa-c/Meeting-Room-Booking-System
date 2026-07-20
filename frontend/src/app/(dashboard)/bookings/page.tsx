@@ -16,13 +16,11 @@ import BookingsHeader from './components/BookingsHeader';
 import BookingsStats from './components/BookingsStats';
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { withAuth } from "@/lib/hooks/withAuth";
 
-export default function BookingsPage() {
+function BookingsPage() {
     const router = useRouter();
-    const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-
-    useAuth();
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
 
     const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined, {
         skip: !isAuthenticated,
@@ -37,18 +35,15 @@ export default function BookingsPage() {
         skip: !isAuthenticated,
     });
 
-    const [deleteBooking, { isLoading: isDeleting }] = useDeleteBookingMutation();
+    const [deleteBooking] = useDeleteBookingMutation();
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const hasError = userError || bookingsError;
 
     if (isLoadingUser) {
         return (
-            <LoadingSpinner
-                message="Loading bookings..."
-                subMessage="Fetching your bookings data"
-                fullScreen={true}
-            />
+            <LoadingSpinner fullScreen={true}  />
         );
     }
 
@@ -83,6 +78,7 @@ export default function BookingsPage() {
     const bookings = data?.data?.bookings || [];
 
     const handleDelete = async (id: string) => {
+        setDeletingId(id);
         try {
             await deleteBooking(id).unwrap();
             toaster.create({
@@ -95,6 +91,8 @@ export default function BookingsPage() {
                 title: error.data?.message || 'Failed to delete booking',
                 type: 'error',
             });
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -140,17 +138,15 @@ export default function BookingsPage() {
                     />
 
                     {isLoading && !isRefreshing ? (
-                        <LoadingSpinner
-                            message="Loading bookings..."
-                            subMessage="Please wait while we fetch your bookings"
-                        />
+                        <LoadingSpinner />
                     ) : (
                         <BookingList
                             bookings={bookings}
                             currentUserId={userId}
                             userRole={currentUser.role}
                             onDelete={handleDelete}
-                            isDeleting={isDeleting}
+                            isDeleting={!!deletingId}
+                            deletingId={deletingId}
                         />
                     )}
                 </VStack>
@@ -158,3 +154,5 @@ export default function BookingsPage() {
         </Box>
     );
 }
+
+export default withAuth(BookingsPage);

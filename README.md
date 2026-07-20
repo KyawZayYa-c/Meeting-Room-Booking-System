@@ -219,7 +219,7 @@ Application running at: `http://localhost:3000`
 | `GET` | `/api/bookings` | Get all bookings | Authenticated |
 | `POST` | `/api/bookings` | Create booking | Authenticated |
 | `DELETE` | `/api/bookings/:id` | Delete booking | User(own)/Owner/Admin |
-| `GET` | `/api/users` | Get all users | Admin only |
+| `GET` | `/api/users` | Get all users | Owner/Admin |
 | `POST` | `/api/users` | Create user | Admin only |
 | `PUT` | `/api/users/:id/role` | Change user role | Admin only |
 | `DELETE` | `/api/users/:id` | Delete user | Admin only |

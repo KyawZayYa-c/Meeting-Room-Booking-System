@@ -16,13 +16,13 @@ import BookingsHeader from './components/BookingsHeader';
 import BookingsStats from './components/BookingsStats';
 import ErrorDisplay from "@/app/components/ErrorDisplay";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
-
+import {useAuth} from "@/lib/hooks/useAuth";
 export default function BookingsPage() {
     const router = useRouter();
     const { user } = useAppSelector((state) => state.auth);
 
     const { data: userData, isLoading: isLoadingUser, error: userError } = useGetMeQuery(undefined);
-
+    useAuth();
     const {
         data,
         isLoading,
@@ -43,11 +43,6 @@ export default function BookingsPage() {
                 fullScreen={true}
             />
         );
-    }
-
-    if (!userData?.user) {
-        router.push('/login');
-        return null;
     }
 
     if (hasError) {
@@ -74,7 +69,9 @@ export default function BookingsPage() {
             </Box>
         );
     }
-
+    if(!userData){
+        return  null;
+    }
     const currentUser = userData.user;
     const bookings = data?.data?.bookings || [];
 

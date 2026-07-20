@@ -38,7 +38,7 @@ export default function DashboardPage() {
         error: usersError,
         refetch: refetchUsers
     } = useGetAllUsersQuery(undefined, {
-        skip: !isAuthenticated && !userData?.user || user?.role !== 'admin',
+        skip: !isAuthenticated && !userData?.user || user?.role !== 'admin' && user?.role !== 'owner',
     });
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export default function DashboardPage() {
     const hasError = userError || bookingsError || usersError;
     const isLoading = isLoadingUser || isLoadingBookings;
 
-    if (isLoadingUser) {
+    if (isLoading) {
         return (
             <LoadingSpinner
                 message="Loading your dashboard..."
@@ -93,7 +93,14 @@ export default function DashboardPage() {
         return userId === currentUserId;
     }).length;
 
-    const recentBookings = bookings.slice(0, 5);
+    const recentBookings = [...bookings]
+        .sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+        })
+        .slice(0, 5);
+
 
     const statsData = {
         totalBookings,

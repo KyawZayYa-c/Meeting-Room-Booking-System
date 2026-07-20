@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import NextLink from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -20,7 +19,7 @@ import {
     HStack,
 } from '@chakra-ui/react';
 import { toaster } from '@/components/ui/toaster';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks'; // ← ဒီလိုပြင်ပါ
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { setUser, setError, setLoading } from '@/lib/store/slices/authSlice';
 import { useLoginMutation } from '@/lib/features/auth/authApiSlice';
 import { LoginSchema, LoginFormData } from '@/lib/schemas/authSchema';
@@ -30,7 +29,7 @@ export default function LoginPage() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const [login, { isLoading }] = useLoginMutation();
-    const { isAuthenticated, user } = useAppSelector((state) => state.auth); // ← ဒီလိုပြင်ပါ
+    const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
     const {
         register,

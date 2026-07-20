@@ -192,7 +192,7 @@ export default function BookingList({
                                     key={booking._id}
                                     _hover={{ bg: isPast ? 'gray.100' : 'gray.50' }}
                                     transition="all 0.2s"
-                                    opacity={isPast ? 0.6 : 1} // ← past booking ဆိုရင် မှိန်သွားမယ်
+                                    opacity={isPast ? 0.6 : 1}
                                     bg={isPast ? 'gray.50' : 'white'}
                                 >
                                     <Table.Cell>
